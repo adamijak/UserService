@@ -2,9 +2,15 @@ name: Run tests
 
 on:
   push:
+    paths:
+      - Api/**
+      - ApiTest/**
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    paths:
+      - Api/**
+      - ApiTest/**
 
 jobs:
 
