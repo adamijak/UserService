@@ -1,0 +1,13 @@
+﻿services:
+  api:
+    depends_on:
+      - db
+    build:
+      dockerfile: Api/Dockerfile
+      context: .
+    ports:
+      - 80:80
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+  db:
+    image: mongo:latest

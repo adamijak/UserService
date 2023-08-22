@@ -1,0 +1,7 @@
+﻿services:
+  api-test:
+    depends_on: 
+      - api
+    build:
+      dockerfile: ApiTest/Dockerfile
+      context: .
