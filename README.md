@@ -8,7 +8,7 @@ Run service from published image:
 Run service from source:  
 `docker compose up`
 
-Run service tests:
+Run service tests:  
 `docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api-test`
 
 ## Api description
