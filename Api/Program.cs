@@ -1,25 +1,59 @@
+using Api;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
+using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("ApiTest")]
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var mongoClient = new MongoClient( "mongodb://db:27017");
+builder.Logging.AddConsole();
+builder.Services.AddSingleton(mongoClient.GetDatabase("user-service-db").GetCollection<User>("users"));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.MapGet("/users", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger) =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+   logger.LogInformation("GET /users");
+   return await users.Find(_ => true).ToListAsync();
+});
 
-app.UseHttpsRedirection();
+app.MapPost("/users", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, User user) =>
+{
+   logger.LogInformation("POST /users");
+   await users.InsertOneAsync(user);
+});
 
-app.UseAuthorization();
+app.MapGet("/users/{id}", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, string id) =>
+{
+   logger.LogInformation("GET /users/{Id}", id);
+   
+   var user = await users.Find(u => u.Id == id).FirstOrDefaultAsync();
+   return user is null ? Results.NotFound() : Results.Ok(user);
+});
 
-app.MapControllers();
+app.MapPut("/users/{id}", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, string? id, User user) =>
+{
+   logger.LogInformation("PUT /users/{Id}", id);
+   if (user.Id is not null)
+   {
+      return Results.BadRequest(new
+      {
+         Error = "Can not change user id",
+      });
+   }
+
+   user.Id = id;
+   var result = await users.ReplaceOneAsync(u => u.Id == id, user );
+   return result.MatchedCount == 1 ? Results.Ok() : Results.NotFound();
+});
+
+app.MapDelete("/users/{id}", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, string id) =>
+{
+   logger.LogInformation("DELETE /users/{Id}", id);
+   var result = await users.DeleteOneAsync(u => u.Id == id);
+   return result.DeletedCount == 1 ? Results.Ok() : Results.NotFound();
+});
 
 app.Run();
