@@ -1,13 +1,24 @@
 # UserService
 ![tests](https://github.com/adamijak/UserService/actions/workflows/tests.yml/badge.svg)
 
-## Get all users
+## Installation
+Run service from published image:  
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml up`
+
+Run service from source:  
+`docker compose up`
+
+Run service tests:
+`docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api-test`
+
+## Api description
+### Get all users
 ```HTTP
 GET /users/ HTTP/1.1
 Host: {{host}}
 ```
 
-## Add new user
+### Add new user
 ```HTTP
 POST /users HTTP/1.1
 Content-Type: application/json
@@ -22,14 +33,14 @@ Content-Length: 112
 }
 ```
 
-## Get user
+### Get user
 ```HTTP
 GET /users/{{id}} HTTP/1.1
 Content-Type: application/json
 Host: {{host}}
 ```
 
-## Update user
+### Update user
 ```HTTP
 PUT /users/{{id}} HTTP/1.1
 Content-Type: application/json
@@ -43,7 +54,7 @@ Content-Length: 28
 }
 ```
 
-## Delete user
+### Delete user
 ```HTTP
 DELETE /users/{{id}} HTTP/1.1
 Content-Type: application/json
