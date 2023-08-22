@@ -7,8 +7,9 @@ using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var mongoClient = new MongoClient( "mongodb://db:27017");
 builder.Logging.AddConsole();
+
+var mongoClient = new MongoClient( "mongodb://db:27017");
 builder.Services.AddSingleton(mongoClient.GetDatabase("user-service-db").GetCollection<User>("users"));
 
 var app = builder.Build();

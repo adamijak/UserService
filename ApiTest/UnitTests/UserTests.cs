@@ -3,7 +3,7 @@ using Api.Validators;
 namespace ApiTest.UnitTests;
 
 [TestClass]
-public class User
+public class UserTests
 {
     [TestMethod]
     [DataRow(true, "david@email.com")]
