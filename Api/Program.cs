@@ -10,7 +10,7 @@ using FluentValidation;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+builder.Services.AddScoped<IValidator<User>, UserValidator>();
 
 builder.Logging.AddConsole();
 
@@ -28,7 +28,7 @@ app.MapGet("/users", async ([FromServices] IMongoCollection<User> users, [FromSe
    return await users.Find(_ => true).ToListAsync();
 });
 
-app.MapPost("/users", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, [FromServices] UserValidator validator, User user) =>
+app.MapPost("/users", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, [FromServices] IValidator<User> validator, User user) =>
 {
    logger.LogInformation("POST /users");
    var validation = await validator.ValidateAsync(user);
