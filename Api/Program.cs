@@ -26,7 +26,7 @@ app.MapGet("/users", async ([FromServices] IMongoCollection<User> users, [FromSe
 {
    logger.LogInformation("GET /users");
    return await users.Find(_ => true).ToListAsync();
-});
+}).Produces<IEnumerable<User>>();
 
 app.MapPost("/users", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, [FromServices] IValidator<User> validator, User user) =>
 {
@@ -42,8 +42,9 @@ app.MapPost("/users", async ([FromServices] IMongoCollection<User> users, [FromS
    }
    
    await users.InsertOneAsync(user);
-   return Results.Ok();
-});
+   return Results.Ok(user);
+}).Produces<User>()
+   .ProducesProblem(StatusCodes.Status400BadRequest);
 
 app.MapGet("/users/{id}", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, string id) =>
 {
@@ -51,7 +52,8 @@ app.MapGet("/users/{id}", async ([FromServices] IMongoCollection<User> users, [F
    
    var user = await users.Find(u => u.Id == id).FirstOrDefaultAsync();
    return user is null ? Results.NotFound() : Results.Ok(user);
-});
+}).Produces<User>()
+   .ProducesProblem(StatusCodes.Status404NotFound);
 
 app.MapPut("/users/{id}", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, string? id, User user) =>
 {
@@ -66,14 +68,16 @@ app.MapPut("/users/{id}", async ([FromServices] IMongoCollection<User> users, [F
 
    user.Id = id;
    var result = await users.ReplaceOneAsync(u => u.Id == id, user );
-   return result.MatchedCount == 1 ? Results.Ok() : Results.NotFound();
-});
+   return result.MatchedCount == 1 ? Results.Ok(user) : Results.NotFound();
+}).Produces<User>()
+   .ProducesProblem(StatusCodes.Status404NotFound)
+   .ProducesProblem(StatusCodes.Status400BadRequest);
 
 app.MapDelete("/users/{id}", async ([FromServices] IMongoCollection<User> users, [FromServices] ILogger<User> logger, string id) =>
 {
    logger.LogInformation("DELETE /users/{Id}", id);
    var result = await users.DeleteOneAsync(u => u.Id == id);
    return result.DeletedCount == 1 ? Results.Ok() : Results.NotFound();
-});
+}).ProducesProblem(StatusCodes.Status404NotFound);
 
 app.Run();
