@@ -25,10 +25,10 @@ public class UserTests
     [TestMethod]
     public async Task PostTest()
     {
-        var id = "id1";
+        var id = new ObjectId();
         var response = await httpClient.PostAsJsonAsync("http://api/users", new User
         {
-            Id = new ObjectId(id),
+            Id = id,
             Email = "david@email.com",
             BirthDate = new DateTime(2000, 01, 03),
             FullName = "David Small",
@@ -36,7 +36,7 @@ public class UserTests
         
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         
-        var user = await users.Find(u => u.Id == new ObjectId(id)).FirstOrDefaultAsync();
+        var user = await users.Find(u => u.Id == id).FirstOrDefaultAsync();
         Assert.IsNotNull(user);
     }
 
