@@ -1,3 +1,4 @@
+using Api;
 using Api.Validators;
 
 namespace ApiTest.UnitTests;
@@ -13,9 +14,9 @@ public class UserTests
     [DataRow(false, "@email.com")]
     public async Task NegativeEmailValidation(bool valid, string email)
     {
-        var user = new Api.User { Email = email };
+        var user = new Api.UserDto { Email = email };
         
-        var validator = new UserValidator();
+        var validator = new UserDtoValidator();
         var result = await validator.ValidateAsync(user);
         
         Assert.AreEqual(!valid, result.Errors.Any(e => e.PropertyName == "Email"));

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Api;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace ApiTest.IntegrationTests;
@@ -27,7 +28,7 @@ public class UserTests
         var id = "id1";
         var response = await httpClient.PostAsJsonAsync("http://api/users", new User
         {
-            Id = id,
+            Id = new ObjectId(id),
             Email = "david@email.com",
             BirthDate = new DateTime(2000, 01, 03),
             FullName = "David Small",
@@ -35,7 +36,7 @@ public class UserTests
         
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         
-        var user = await users.Find(u => u.Id == id).FirstOrDefaultAsync();
+        var user = await users.Find(u => u.Id == new ObjectId(id)).FirstOrDefaultAsync();
         Assert.IsNotNull(user);
     }
 
